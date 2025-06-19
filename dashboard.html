@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financiero - Rumbo a la Libertad</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Eliminar los estilos inline que ahora están en styles.css */
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <!-- Botón para cambiar de tema -->
+        <button class="btn btn-outline-secondary float-end toggle-theme-btn" 
+                onclick="toggleTheme()" 
+                aria-label="Cambiar tema visual"
+                role="switch"
+                aria-checked="false">
+            <i class="fas fa-sun" aria-hidden="true"></i>
+        </button>
+
+        <h2 class="text-center mb-4" id="mainTitle">Rumbo a la Libertad Financiera</h2>
+        <p id="fechaActual" class="text-center text-muted"></p>
+
+        <!-- Botones de navegación -->
+        <nav aria-label="Navegación principal">
+            <div class="d-flex flex-wrap justify-content-between mb-4" role="toolbar" aria-label="Acciones principales">
+                <button class="btn btn-secondary flex-grow-1 me-2 mb-2" 
+                        onclick="window.location.href='index.html'"
+                        aria-label="Ir a inicio">
+                    <i class="fas fa-home" aria-hidden="true"></i> Inicio
+                </button>
+                <button class="btn btn-primary flex-grow-1 me-2 mb-2" onclick="window.location.href='track-record.html'"><i class="fas fa-chart-pie"></i> Track Record</button>
+                <button class="btn btn-primary flex-grow-1 me-2 mb-2" onclick="window.location.href='deudas.html'"><i class="fas fa-money-bill-wave"></i> Deudas</button>
+                <button class="btn btn-primary flex-grow-1 mb-2" onclick="window.location.href='doordash.html'"><i class="fas fa-car"></i> DoorDash</button>
+            </div>
+        </nav>
+
+        <div class="row">
+            <!-- Columna principal -->
+            <div class="col-md-8">
+                <form id="registroForm" aria-label="Formulario de registro financiero">
+                    <div class="card-modern p-4 mb-4">
+                        <h3 class="mb-3" id="registroTitle"><i class="fas fa-wallet" aria-hidden="true"></i> Registro de Ingresos y Gastos</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="ingresos" class="form-label">Ingresos:</label>
+                                <input type="number" 
+                                       id="ingresos" 
+                                       class="form-control" 
+                                       placeholder="Ej. 500"
+                                       aria-describedby="ingresosHelp">
+                                <div id="ingresosHelp" class="form-text">Ingrese sus ingresos totales</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Monto del Gasto:</label>
+                                <input type="number" id="montoGasto" class="form-control" placeholder="Ej. 200">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Categoría del Gasto:</label>
+                                <input type="text" id="categoriaGasto" class="form-control" placeholder="Ej. Comida, Transporte">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Gasolina:</label>
+                                <input type="number" id="gasolina" class="form-control" placeholder="Ej. 50">
+                            </div>
+                            <div class="col-md-12" id="otroGastoContainer" style="display: none;">
+                                <label class="form-label">Especifique el gasto:</label>
+                                <input type="text" id="otroGasto" class="form-control" placeholder="Ej. Entretenimiento">
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-between mt-3" role="toolbar" aria-label="Acciones de registro">
+                            <button type="button" 
+                                    class="btn btn-success flex-grow-1 me-2 mb-2" 
+                                    id="guardarDatosBtn"
+                                    aria-label="Guardar datos">
+                                <i class="fas fa-save" aria-hidden="true"></i> Guardar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Botones de acciones fuera del formulario -->
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <a href="historial.html" class="btn btn-info">
+                        <i class="fas fa-history"></i> Ver Historial
+                    </a>
+                    <button class="btn btn-warning" onclick="exportarCSV()">
+                        <i class="fas fa-file-export"></i> Exportar CSV
+                    </button>
+                    <button class="btn btn-danger" onclick="reiniciarDatos()">
+                        <i class="fas fa-trash-alt"></i> Reiniciar Datos
+                    </button>
+                </div>
+
+                <!-- Sección de notificaciones importantes -->
+                <section aria-labelledby="notificacionesTitle">
+                    <div class="card-modern p-4 mb-4">
+                        <h3 class="mb-3" id="notificacionesTitle">
+                            <i class="fas fa-bell" aria-hidden="true"></i> Notificaciones Importantes
+                        </h3>
+                        <div id="notificaciones" 
+                             class="d-flex flex-column gap-3" 
+                             role="alert" 
+                             aria-live="polite">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="card-modern p-4 mb-4">
+                    <h3 class="mb-3 text-center"><i class="fas fa-history"></i> Registros Recientes</h3>
+                    <div id="registrosRecientes" class="mt-3">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Ingresos</th>
+                                        <th>Gastos</th>
+                                        <th>Categoría</th>
+                                        <th>Gasolina</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Los registros recientes se llenarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="resumenFinanciero">
+                    <!-- El contenido se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Columna lateral para el resumen semanal -->
+            <div class="col-md-4">
+                <aside class="card-modern p-4 sticky-top" aria-labelledby="resumenTitle">
+                    <h3 class="mb-3" id="resumenTitle">
+                        <i class="fas fa-chart-line" aria-hidden="true"></i> Resumen Semanal
+                    </h3>
+                    <!-- Agregar sección de balance general -->
+                    <div class="balance-summary mb-4">
+                        <h4 class="mb-3">Balance General</h4>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Ingresos Totales:</span>
+                            <span id="totalIngresos" class="text-success">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Gastos Totales:</span>
+                            <span id="totalGastos" class="text-danger">$0.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Saldo:</strong>
+                            <strong id="saldoTotal" class="text-primary">$0.00</strong>
+                        </div>
+                    </div>
+                    <div id="resumenSemanal">
+                        <!-- El contenido del resumen semanal se llenará dinámicamente -->
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <h2 class="text-center mb-4">Gastos Fijos Mensuales</h2>
+        <div class="alert alert-info text-center" id="infoGastosFijos">
+            Tu balance se reiniciará el <span id="fechaReinicio"></span>. Faltan <span id="diasFaltantes"></span> días para el próximo reinicio.
+        </div>
+
+        <div class="card-modern p-4 mb-4">
+            <h3 class="mb-3"><i class="fas fa-wallet"></i> Agregar Gasto Fijo</h3>
+            <form id="gastoFijoForm" aria-label="Formulario de gastos fijos">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nombreGastoFijo" class="form-label">Nombre del Gasto:</label>
+                        <input type="text" id="nombreGastoFijo" class="form-control" placeholder="Ej. Renta" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="montoGastoFijo" class="form-label">Monto:</label>
+                        <input type="number" id="montoGastoFijo" class="form-control" placeholder="Ej. 500" min="1" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="fechaDescuento" class="form-label">Fecha de Descuento:</label>
+                        <input type="date" id="fechaDescuento" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success mt-3 w-100"><i class="fas fa-save"></i> Agregar Gasto</button>
+            </form>
+        </div>
+
+        <div class="card-modern p-4 mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Gastos Fijos</h5>
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-danger btn-sm" id="resetGastosBtn">
+                        <i class="fas fa-trash"></i> Reset
+                    </button>
+                </div>
+            </div>
+            <h3 class="mb-3"><i class="fas fa-list"></i> Lista de Gastos Fijos</h3>
+            <div id="listaGastosFijos" class="row g-3">
+                <!-- Las tarjetas de gastos se generarán dinámicamente -->
+            </div>
+        </div>
+
+        <div class="card-modern p-4">
+            <h3 class="mb-3"><i class="fas fa-chart-line"></i> Progreso de Gastos Fijos</h3>
+            <div class="progress-container mt-4">
+                <div id="barraProgresoGastosFijos" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <p class="text-center mt-2">Progreso: <span id="porcentajeGastosFijos">0%</span></p>
+        </div>
+    </div>
+    <!-- Actualizar los scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/gastosFijos.js"></script>
+    <script>
+        // Solo mantener las funciones de exportar y reiniciar
+        function exportarCSV() {
+            const registros = JSON.parse(localStorage.getItem('registrosDashboard')) || [];
+            if (registros.length === 0) {
+                alert('No hay datos para exportar');
+                return;
+            }
+
+            const csvContent = 'data:text/csv;charset=utf-8,'
+                + 'Fecha,Categoría,Ingresos,Gastos,Gasolina\n'
+                + registros.map(row => 
+                    `${row.fecha},${row.categoria},${row.ingresos},${row.gastos},${row.gasolina}`
+                ).join('\n');
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'registros_financieros.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function reiniciarDatos() {
+            if (confirm('¿Estás seguro de que deseas eliminar todos los registros?')) {
+                localStorage.removeItem('registrosDashboard');
+                window.location.reload();
+            }
+        }
+    </script>
+    <script>
+        // Function to save fixed expenses to local storage
+        function saveGastosFijos(gastos) {
+            localStorage.setItem('gastosFijos', JSON.stringify(gastos));
+        }
+
+        // Function to load fixed expenses from local storage
+        function loadGastosFijos() {
+            const gastosFijos = JSON.parse(localStorage.getItem('gastosFijos')) || [];
+            return gastosFijos;
+        }
+
+        // Function to display fixed expenses in the UI
+        function displayGastosFijos() {
+            const listaGastosFijos = document.getElementById('listaGastosFijos');
+            listaGastosFijos.innerHTML = ''; // Clear existing list
+
+            const gastos = loadGastosFijos();
+
+            gastos.forEach((gasto, index) => {
+                const gastoCard = document.createElement('div');
+                gastoCard.className = 'col-md-6';
+                gastoCard.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">${gasto.nombre}</h5>
+                            <p class="card-text">Monto: $${parseFloat(gasto.monto).toFixed(2)}</p>
+                            <p class="card-text">Fecha de Descuento: ${gasto.fecha}</p>
+                            <button class="btn btn-danger btn-sm" onclick="eliminarGastoFijo(${index})"><i class="fas fa-trash"></i> Eliminar</button>
+                        </div>
+                    </div>
+                `;
+                listaGastosFijos.appendChild(gastoCard);
+            });
+        }
+
+        // Function to add a new fixed expense
+        document.getElementById('gastoFijoForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('nombreGastoFijo').value;
+            const monto = document.getElementById('montoGastoFijo').value;
+            const fecha = document.getElementById('fechaDescuento').value;
+
+            const nuevoGasto = { nombre: nombre, monto: monto, fecha: fecha };
+            const gastos = loadGastosFijos();
+            gastos.push(nuevoGasto);
+            saveGastosFijos(gastos);
+
+            displayGastosFijos();
+            this.reset(); // Clear the form
+        });
+
+        // Function to delete a fixed expense
+        function eliminarGastoFijo(index) {
+            const gastos = loadGastosFijos();
+            gastos.splice(index, 1);
+            saveGastosFijos(gastos);
+            displayGastosFijos();
+        }
+
+        // Function to reset all fixed expenses
+        document.getElementById('resetGastosBtn').addEventListener('click', function() {
+            if (confirm('¿Estás seguro de que deseas eliminar todos los gastos fijos?')) {
+                localStorage.removeItem('gastosFijos');
+                displayGastosFijos(); // Update the display
+            }
+        });
+
+        // Load and display fixed expenses on page load
+        displayGastosFijos();
+    </script>
+</body>
+</html>
